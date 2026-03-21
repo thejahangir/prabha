@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { StoreProvider } from './context/StoreContext';
 import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
@@ -19,6 +19,15 @@ import { Wishlist } from './pages/Wishlist';
 import { About } from './pages/About';
 import { Blog } from './pages/Blog';
 import { Contact } from './pages/Contact';
+
+// Admin pages
+import { AdminLogin } from './pages/admin/AdminLogin';
+import { AdminLayout } from './pages/admin/AdminLayout';
+import { Dashboard } from './pages/admin/Dashboard';
+import { AdminProducts } from './pages/admin/AdminProducts';
+import { AdminOrders } from './pages/admin/AdminOrders';
+import { AdminPayments } from './pages/admin/AdminPayments';
+import { AdminDiscounts } from './pages/admin/AdminDiscounts';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -43,6 +52,7 @@ export default function App() {
       <Router>
         <ScrollToTop />
         <Routes>
+          {/* Main store routes */}
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="shop" element={<Shop />} />
@@ -57,6 +67,17 @@ export default function App() {
             <Route path="blog" element={<Blog />} />
             <Route path="contact" element={<Contact />} />
             <Route path="*" element={<Placeholder title="404 - Page Not Found" />} />
+          </Route>
+
+          {/* Admin routes (outside main Layout) */}
+          <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="products" element={<AdminProducts />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="payments" element={<AdminPayments />} />
+            <Route path="discounts" element={<AdminDiscounts />} />
           </Route>
         </Routes>
       </Router>

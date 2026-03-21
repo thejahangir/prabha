@@ -71,11 +71,17 @@ export const Category = () => {
               className="group flex flex-col"
             >
               <Link to={`/product/${product.id}`} className="relative aspect-[4/5] overflow-hidden rounded-xl bg-stone-100 mb-4">
-                <img 
-                  src={product.image} 
-                  alt={product.name} 
-                  className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
-                />
+                {product.image ? (
+                  <img 
+                    src={product.image} 
+                    alt={product.name} 
+                    className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-stone-100 text-stone-300 font-serif text-5xl opacity-50 transition-transform duration-500 group-hover:scale-105">
+                    {product.name.charAt(0)}
+                  </div>
+                )}
                 {product.isNew && (
                   <span className="absolute top-3 left-3 bg-gradient-to-r from-brand-pink to-brand-purple text-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-full shadow-[0_4px_10px_rgba(255,0,110,0.3)] z-10">
                     New

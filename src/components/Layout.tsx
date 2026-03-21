@@ -337,9 +337,10 @@ export const Layout = () => {
           </div>
           <div className="border-t border-stone-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
             <p className="text-xs text-stone-500">© 2026 Prabha Pure. All rights reserved.</p>
-            <div className="flex space-x-4 mt-4 md:mt-0">
+            <div className="flex space-x-4 mt-4 md:mt-0 items-center">
               <a href="#" className="text-stone-500 hover:text-white transition-colors text-xs">Privacy Policy</a>
               <a href="#" className="text-stone-500 hover:text-white transition-colors text-xs">Terms of Service</a>
+              <Link to="/admin" className="text-stone-600 hover:text-stone-400 transition-colors text-xs opacity-40 hover:opacity-70 ml-4">Admin</Link>
             </div>
           </div>
         </div>
@@ -390,7 +391,13 @@ export const Layout = () => {
                     {cart.map((item) => (
                       <div key={item.cartItemId} className="flex space-x-4">
                         <div className="w-20 h-24 bg-stone-100 rounded-md overflow-hidden flex-shrink-0">
-                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                          {item.image ? (
+                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-stone-200 text-stone-400 font-serif text-3xl">
+                              {item.name.charAt(0)}
+                            </div>
+                          )}
                         </div>
                         <div className="flex-1 flex flex-col">
                           <div className="flex justify-between">
@@ -407,7 +414,7 @@ export const Layout = () => {
                               <X size={16} />
                             </button>
                           </div>
-                          <p className="text-sm text-stone-500 mt-1">${item.price}</p>
+                          <p className="text-sm text-stone-500 mt-1">₹{item.price.toLocaleString('en-IN')}</p>
                           
                           <div className="mt-auto flex items-center border border-stone-200 rounded-full w-24 h-8">
                             <button 

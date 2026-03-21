@@ -28,6 +28,10 @@ export interface Product {
   howToUse?: string;
   variants?: ProductVariant[];
   reviewsList?: Review[];
+  discount?: number; // percentage e.g. 20 means 20% off
+  discountedPrice?: number; // pre-calculated discounted price
+  stock?: number;
+  isActive?: boolean;
 }
 
 export const products: Product[] = [
@@ -35,7 +39,7 @@ export const products: Product[] = [
     id: '1',
     name: 'Luminous Glow Serum',
     description: 'A lightweight, hydrating serum that leaves skin with a dewy, radiant finish. Infused with Vitamin C and Hyaluronic Acid.',
-    price: 48,
+    price: 3999,
     category: 'Skincare',
     image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=800',
     images: [
@@ -66,13 +70,17 @@ export const products: Product[] = [
         date: 'September 28, 2025',
         content: 'Really nice serum. It absorbs quickly and doesn\'t leave a sticky residue. The only reason I gave it 4 stars is because I wish the bottle was a bit larger for the price.'
       }
-    ]
+    ],
+    discount: 20,
+    discountedPrice: 3199,
+    stock: 42,
+    isActive: true
   },
   {
     id: '2',
     name: 'Velvet Matte Lipstick',
     description: 'A highly pigmented, long-lasting matte lipstick that feels comfortable and non-drying on the lips.',
-    price: 24,
+    price: 1999,
     category: 'Makeup',
     image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&q=80&w=800',
     images: [
@@ -95,7 +103,7 @@ export const products: Product[] = [
     id: '3',
     name: 'Purifying Clay Mask',
     description: 'A deeply cleansing mask that draws out impurities and minimizes the appearance of pores without stripping the skin.',
-    price: 36,
+    price: 2999,
     category: 'Skincare',
     image: 'https://images.unsplash.com/photo-1591360236480-4ed861025fa1?auto=format&fit=crop&q=80&w=800',
     images: [
@@ -106,13 +114,17 @@ export const products: Product[] = [
     reviews: 210,
     isBestseller: true,
     ingredients: ['Kaolin Clay', 'Bentonite Clay', 'Green Tea Extract', 'Salicylic Acid'],
-    howToUse: 'Apply an even layer to clean, dry skin. Leave on for 10-15 minutes, then rinse thoroughly with warm water. Use 1-2 times a week.'
+    howToUse: 'Apply an even layer to clean, dry skin. Leave on for 10-15 minutes, then rinse thoroughly with warm water. Use 1-2 times a week.',
+    discount: 15,
+    discountedPrice: 2549,
+    stock: 28,
+    isActive: true
   },
   {
     id: '4',
     name: 'Hydrating Rose Mist',
     description: 'A refreshing facial mist that instantly hydrates and revitalizes the skin, leaving a subtle rose scent.',
-    price: 28,
+    price: 2299,
     category: 'Skincare',
     image: 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&q=80&w=800',
     images: [
@@ -127,7 +139,7 @@ export const products: Product[] = [
     id: '5',
     name: 'Nourishing Body Butter',
     description: 'A rich, whipped body butter that melts into the skin, providing intense moisture and leaving it feeling soft and supple.',
-    price: 42,
+    price: 3499,
     category: 'Body Care',
     image: 'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&q=80&w=800',
     images: [
@@ -143,7 +155,7 @@ export const products: Product[] = [
     id: '6',
     name: 'Perfecting Concealer',
     description: 'A creamy, buildable concealer that covers imperfections and brightens the under-eye area without creasing.',
-    price: 26,
+    price: 2199,
     category: 'Makeup',
     image: 'https://images.unsplash.com/photo-1599305090598-fe179d501227?auto=format&fit=crop&q=80&w=800',
     images: [
@@ -159,7 +171,7 @@ export const products: Product[] = [
     id: '7',
     name: 'Gentle Foaming Cleanser',
     description: 'A mild, sulfate-free cleanser that effectively removes dirt, oil, and makeup without disrupting the skin barrier.',
-    price: 32,
+    price: 2699,
     category: 'Skincare',
     image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=800',
     images: [
@@ -174,7 +186,7 @@ export const products: Product[] = [
     id: '8',
     name: 'Volumizing Mascara',
     description: 'A clump-free mascara that lifts, lengthens, and adds dramatic volume to lashes for a wide-awake look.',
-    price: 22,
+    price: 1799,
     category: 'Makeup',
     image: 'https://images.unsplash.com/photo-1591360236480-4ed861025fa1?auto=format&fit=crop&q=80&w=800',
     images: [
@@ -189,7 +201,7 @@ export const products: Product[] = [
     id: '9',
     name: 'Exfoliating Body Scrub',
     description: 'A gentle sugar scrub that buffs away dead skin cells, revealing smoother, more radiant skin.',
-    price: 34,
+    price: 2799,
     category: 'Body Care',
     image: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&q=80&w=800',
     images: [
@@ -204,7 +216,7 @@ export const products: Product[] = [
     id: '10',
     name: 'Daily SPF 30 Sunscreen',
     description: 'A lightweight, invisible mineral sunscreen that protects against UVA/UVB rays without leaving a white cast.',
-    price: 38,
+    price: 3199,
     category: 'Skincare',
     image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=800',
     images: [
@@ -220,7 +232,7 @@ export const products: Product[] = [
     id: '11',
     name: 'Signature Floral Perfume',
     description: 'A modern, elegant fragrance with notes of jasmine, rose, and warm sandalwood.',
-    price: 85,
+    price: 6999,
     category: 'Fragrance',
     image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800',
     images: [
@@ -230,13 +242,17 @@ export const products: Product[] = [
     reviews: 125,
     isNew: true,
     ingredients: ['Alcohol Denat', 'Fragrance (Parfum)', 'Water (Aqua)'],
-    howToUse: 'Spritz onto pulse points (wrists, neck, behind ears) and let it dry down naturally.'
+    howToUse: 'Spritz onto pulse points (wrists, neck, behind ears) and let it dry down naturally.',
+    discount: 25,
+    discountedPrice: 5249,
+    stock: 18,
+    isActive: true
   },
   {
     id: '12',
     name: 'The Starter Set',
     description: 'Our three best-selling skincare essentials in travel-friendly sizes. Perfect for trying out the brand or taking on the go.',
-    price: 65,
+    price: 5499,
     category: 'Sets',
     image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=800',
     images: [
@@ -246,7 +262,11 @@ export const products: Product[] = [
     reviews: 215,
     isBestseller: true,
     ingredients: ['Various - see individual products'],
-    howToUse: 'Follow the instructions for each individual product in the set.'
+    howToUse: 'Follow the instructions for each individual product in the set.',
+    discount: 10,
+    discountedPrice: 4949,
+    stock: 35,
+    isActive: true
   }
 ];
 

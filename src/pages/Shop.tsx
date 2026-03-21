@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { products, categories } from '../data/products';
 import { useStore } from '../context/StoreContext';
-import { Star, Filter, ChevronDown, Check } from 'lucide-react';
+import { Star, ChevronDown, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 const ProductSkeleton = () => (
@@ -22,7 +22,8 @@ const ProductSkeleton = () => (
 );
 
 export const Shop = () => {
-  const { addToCart } = useStore();
+  const { addToCart, discounts, adminProducts } = useStore();
+  const allProducts = [...products, ...adminProducts];
   const [activeCategory, setActiveCategory] = useState('All');
   const [sortBy, setSortBy] = useState('featured');
   const [isLoading, setIsLoading] = useState(true);
@@ -46,7 +47,7 @@ export const Shop = () => {
     return () => clearTimeout(timer);
   }, [activeCategory, sortBy]);
 
-  const filteredProducts = products
+  const filteredProducts = allProducts
     .filter(p => activeCategory === 'All' || p.category === activeCategory)
     .sort((a, b) => {
       if (sortBy === 'price-low') return a.price - b.price;
@@ -123,21 +124,35 @@ export const Shop = () => {
                 className="group flex flex-col"
               >
                 <Link to={`/product/${product.id}`} className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-stone-100 mb-6 shadow-sm hover:shadow-xl transition-all duration-500">
-                  <img 
-                    src={product.image} 
-                    alt={product.name} 
-                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
-                  />
-                  {product.isNew && (
-                    <span className="absolute top-4 left-4 bg-gradient-to-r from-brand-pink to-brand-purple text-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-full shadow-[0_4px_12px_rgba(255,0,110,0.4)] z-10">
-                      New
-                    </span>
+                  {product.image ? (
+                    <img 
+                      src={product.image} 
+                      alt={product.name} 
+                      className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-stone-100 text-stone-300 font-serif text-5xl opacity-50 transition-transform duration-700 group-hover:scale-110">
+                      {product.name.charAt(0)}
+                    </div>
                   )}
-                  {product.isBestseller && !product.isNew && (
-                    <span className="absolute top-4 left-4 bg-[#ffbe0b]/90 backdrop-blur-md px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-stone-900 rounded-full shadow-sm">
-                      Bestseller
-                    </span>
-                  )}
+                  {/* Badges row */}
+                  <div className="absolute top-4 left-4 flex flex-col gap-1.5 z-10">
+                    {(() => { const disc = discounts[product.id] ?? product.discount; return disc ? (
+                      <span className="bg-gradient-to-r from-red-500 to-orange-400 text-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg">
+                        {disc}% OFF
+                      </span>
+                    ) : null; })()}
+                    {product.isNew && (
+                      <span className="bg-gradient-to-r from-brand-pink to-brand-purple text-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-full shadow-[0_4px_12px_rgba(255,0,110,0.4)]">
+                        New
+                      </span>
+                    )}
+                    {product.isBestseller && !product.isNew && (
+                      <span className="bg-[#ffbe0b]/90 backdrop-blur-md px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-stone-900 rounded-full shadow-sm">
+                        Bestseller
+                      </span>
+                    )}
+                  </div>
                   <div className="absolute inset-x-0 bottom-0 p-4 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0">
                     <motion.button 
                       whileHover={{ scale: 1.05 }}
@@ -168,7 +183,7 @@ export const Shop = () => {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
                           >
-                            Quick Add - ${product.price}
+                            {(() => { const disc = discounts[product.id] ?? product.discount; const price = disc ? (product.price * (1 - disc/100)).toFixed(0) : product.price; return `Quick Add - ₹${Number(price).toLocaleString('en-IN')}`; })()}
                           </motion.span>
                         )}
                       </AnimatePresence>
@@ -187,7 +202,19 @@ export const Shop = () => {
                     </Link>
                   </h3>
                   <p className="text-sm text-stone-500 mb-3 line-clamp-1">{product.description}</p>
-                  <p className="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-brand-pink mt-auto">${product.price}</p>
+                  {(() => {
+                    const disc = discounts[product.id] ?? product.discount;
+                    if (disc) {
+                      const discPrice = Math.round(product.price * (1 - disc / 100));
+                      return (
+                        <div className="flex items-center gap-2 mt-auto">
+                          <p className="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-400">₹{discPrice.toLocaleString('en-IN')}</p>
+                          <p className="text-sm text-stone-400 line-through">₹{product.price.toLocaleString('en-IN')}</p>
+                        </div>
+                      );
+                    }
+                    return <p className="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-brand-pink mt-auto">₹{product.price.toLocaleString('en-IN')}</p>;
+                  })()}
                 </div>
               </motion.div>
             ))

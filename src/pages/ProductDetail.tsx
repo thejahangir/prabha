@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'motion/react';
 
 export const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const { addToCart, addToWishlist, removeFromWishlist, isInWishlist } = useStore();
+  const { addToCart, addToWishlist, removeFromWishlist, isInWishlist, discounts } = useStore();
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const [direction, setDirection] = useState(0);
@@ -170,39 +170,45 @@ export const ProductDetail = () => {
               onMouseLeave={() => setIsZoomed(false)}
               onMouseMove={handleMouseMove}
             >
-              <AnimatePresence initial={false} custom={direction}>
-                <motion.img 
-                  key={activeImage}
-                  custom={direction}
-                  variants={variants}
-                  initial="enter"
-                  animate={["center", isZoomed ? "zoomed" : "unzoomed"]}
-                  exit="exit"
-                  transition={{
-                    x: { type: "spring", stiffness: 300, damping: 30 },
-                    opacity: { duration: 0.2 },
-                    scale: { duration: 0.2, ease: "easeOut" }
-                  }}
-                  drag="x"
-                  dragConstraints={{ left: 0, right: 0 }}
-                  dragElastic={1}
-                  onDragEnd={(e, { offset, velocity }) => {
-                    const swipe = swipePower(offset.x, velocity.x);
+              {product.images.length > 0 ? (
+                <AnimatePresence initial={false} custom={direction}>
+                  <motion.img 
+                    key={activeImage}
+                    custom={direction}
+                    variants={variants}
+                    initial="enter"
+                    animate={["center", isZoomed ? "zoomed" : "unzoomed"]}
+                    exit="exit"
+                    transition={{
+                      x: { type: "spring", stiffness: 300, damping: 30 },
+                      opacity: { duration: 0.2 },
+                      scale: { duration: 0.2, ease: "easeOut" }
+                    }}
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={1}
+                    onDragEnd={(e, { offset, velocity }) => {
+                      const swipe = swipePower(offset.x, velocity.x);
 
-                    if (swipe < -swipeConfidenceThreshold) {
-                      paginate(1);
-                    } else if (swipe > swipeConfidenceThreshold) {
-                      paginate(-1);
-                    }
-                  }}
-                  src={product.images[activeImage]} 
-                  alt={product.name} 
-                  className="absolute inset-0 w-full h-full object-cover object-center"
-                  style={{
-                    transformOrigin: isZoomed ? `${mousePosition.x}% ${mousePosition.y}%` : 'center center',
-                  }}
-                />
-              </AnimatePresence>
+                      if (swipe < -swipeConfidenceThreshold) {
+                        paginate(1);
+                      } else if (swipe > swipeConfidenceThreshold) {
+                        paginate(-1);
+                      }
+                    }}
+                    src={product.images[activeImage]} 
+                    alt={product.name} 
+                    className="absolute inset-0 w-full h-full object-cover object-center"
+                    style={{
+                      transformOrigin: isZoomed ? `${mousePosition.x}% ${mousePosition.y}%` : 'center center',
+                    }}
+                  />
+                </AnimatePresence>
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center bg-stone-100 text-stone-300 font-serif text-8xl opacity-50">
+                  {product.name.charAt(0)}
+                </div>
+              )}
               
               {/* Carousel Controls */}
               <div className="absolute inset-0 z-10 flex items-center justify-between p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
@@ -284,7 +290,21 @@ export const ProductDetail = () => {
                   </button>
                 </div>
               </div>
-              <p className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-brand-pink mb-6 tracking-tighter">${product.price}</p>
+              {/* Price with discount support */}
+              {(() => {
+                const disc = discounts[product.id] ?? product.discount;
+                if (disc) {
+                  const discPrice = Math.round(product.price * (1 - disc / 100));
+                  return (
+                    <div className="flex items-center gap-4 mb-3">
+                      <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-400 tracking-tighter">₹{discPrice.toLocaleString('en-IN')}</span>
+                      <span className="text-xl text-stone-400 line-through font-medium">₹{product.price.toLocaleString('en-IN')}</span>
+                      <span className="bg-red-100 text-red-600 text-xs font-bold px-2.5 py-1.5 rounded-full">{disc}% OFF</span>
+                    </div>
+                  );
+                }
+                return <p className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-brand-pink mb-6 tracking-tighter">₹{product.price.toLocaleString('en-IN')}</p>;
+              })()}
               <p className="text-lg text-stone-600 leading-relaxed font-medium mb-8">
                 {product.description}
               </p>
@@ -351,13 +371,17 @@ export const ProductDetail = () => {
                   {isAdded ? (
                     <span className="flex items-center"><Check size={20} className="mr-2" /> Added to Cart</span>
                   ) : (
-                    `Add to Cart - $${(product.price * quantity).toFixed(2)}`
+                    (() => {
+                      const disc = discounts[product.id] ?? product.discount;
+                      const unitPrice = disc ? Math.round(product.price * (1 - disc / 100)) : product.price;
+                      return `Add to Cart - ₹${(unitPrice * quantity).toLocaleString('en-IN')}`;
+                    })()
                   )}
                 </button>
               </div>
               <div className="flex items-center justify-center space-x-6 text-xs font-medium text-stone-500 uppercase tracking-wider">
                 <span className="flex items-center"><Check size={14} className="mr-1.5 text-emerald-500" /> In Stock</span>
-                <span className="flex items-center"><Check size={14} className="mr-1.5 text-emerald-500" /> Free Shipping over $50</span>
+                <span className="flex items-center"><Check size={14} className="mr-1.5 text-emerald-500" /> Free Shipping over ₹2,999</span>
               </div>
             </div>
 
@@ -548,11 +572,17 @@ export const ProductDetail = () => {
               .map((recommendedProduct) => (
                 <div key={recommendedProduct.id} className="group flex flex-col">
                   <Link to={`/product/${recommendedProduct.id}`} className="relative aspect-[4/5] overflow-hidden rounded-xl bg-stone-100 mb-4">
-                    <img 
-                      src={recommendedProduct.image} 
-                      alt={recommendedProduct.name} 
-                      className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
-                    />
+                    {recommendedProduct.image ? (
+                      <img 
+                        src={recommendedProduct.image} 
+                        alt={recommendedProduct.name} 
+                        className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-stone-100 text-stone-300 font-serif text-5xl opacity-50 transition-transform duration-500 group-hover:scale-105">
+                        {recommendedProduct.name.charAt(0)}
+                      </div>
+                    )}
                     <div className="absolute inset-x-0 bottom-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-4 group-hover:translate-y-0">
                       <motion.button 
                         whileHover={{ scale: 1.05 }}
@@ -563,7 +593,7 @@ export const ProductDetail = () => {
                         }}
                         className="w-full bg-white/90 backdrop-blur-sm text-stone-900 font-medium py-3 rounded-full shadow-sm hover:bg-white transition-colors"
                       >
-                        Quick Add - ${recommendedProduct.price}
+                        Quick Add - ₹{recommendedProduct.price.toLocaleString('en-IN')}
                       </motion.button>
                     </div>
                   </Link>
@@ -574,7 +604,7 @@ export const ProductDetail = () => {
                       </Link>
                     </h3>
                     <p className="text-sm text-stone-500 mb-2 line-clamp-1">{recommendedProduct.description}</p>
-                    <p className="text-base font-medium text-stone-900 mt-auto">${recommendedProduct.price}</p>
+                    <p className="text-base font-medium text-stone-900 mt-auto">₹{recommendedProduct.price.toLocaleString('en-IN')}</p>
                   </div>
                 </div>
               ))}
