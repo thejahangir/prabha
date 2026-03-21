@@ -19,6 +19,7 @@ export const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   if (!isAdmin) {
     navigate('/admin/login');
@@ -26,10 +27,13 @@ export const AdminLayout: React.FC = () => {
   }
 
   const handleLogout = () => {
-    if (window.confirm('Are you sure you want to log out?')) {
-      adminLogout();
-      navigate('/admin/login');
-    }
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = () => {
+    setShowLogoutConfirm(false);
+    adminLogout();
+    navigate('/admin/login');
   };
 
   const SidebarContent = () => (
@@ -139,6 +143,36 @@ export const AdminLayout: React.FC = () => {
           <Outlet />
         </main>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm px-4 duration-300 animate-in fade-in">
+          <div className="bg-[#12121a] border border-white/10 rounded-2xl p-6 max-w-sm w-full shadow-2xl relative overflow-hidden duration-300 animate-in zoom-in-95">
+            <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-red-500 to-orange-500"></div>
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-500/10 text-red-500 mb-4 mx-auto">
+              <LogOut size={24} />
+            </div>
+            <h3 className="text-xl font-bold text-white text-center mb-2">Confirm Logout</h3>
+            <p className="text-white/60 text-center mb-6 text-sm">
+              Are you sure you want to end your session? You will need to sign in again to access the admin panel.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white/70 bg-white/5 hover:bg-white/10 hover:text-white transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmLogout}
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-500 hover:bg-red-600 transition-all shadow-lg shadow-red-500/20"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
